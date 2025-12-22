@@ -1,4 +1,4 @@
-const letters = [
+let letters = [
     "A", "A", "A", "A", "A", "A", "A", "A", "A",
     "B", "B",
     "C", "C",
@@ -28,6 +28,8 @@ const letters = [
     " ", " "
 ];
 
+shuffle(letters);
+
 let fields = [];
 
 for(let i = 0; i < 15; i++) {
@@ -46,7 +48,7 @@ let CurrentGameState = GameState.SELECT_HAND_TILE;
     function draw() {
     for(let i = 0; i < 7; i++)
     {
-        $("#drawn" + i).text(letters[Math.floor(Math.random() * letters.length)])
+        $("#drawn" + i).text(letters.pop())
             .css("background-color","rgb(238, 220, 170)")
             .addClass("active-handtile");
     }
@@ -174,4 +176,17 @@ function getNeighbours(x, y)
     } catch (err) {}
 
     return neighbourTiles;
+}
+
+function shuffle(array) {
+    let currentIndex = array.length;
+
+    // While there remain elements to shuffle...
+    while (currentIndex != 0) {
+
+        let randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+
+        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+    }
 }
