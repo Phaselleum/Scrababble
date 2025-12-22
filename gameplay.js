@@ -28,6 +28,12 @@ const letters = [
     " ", " "
 ];
 
+let fields = [];
+
+for(let i = 0; i < 15; i++) {
+    fields[i] = [];
+}
+
 let first_move_flag = false;
 
 class GameState {
@@ -107,7 +113,12 @@ function validTileOnMouseLeave() {
 
 function validTileOnClick() {
 
-    if(CurrentGameState !== GameState.SELECT_BOARD_TILE) return;
+    if (CurrentGameState !== GameState.SELECT_BOARD_TILE) return;
+
+    let tileId = $(this).attr("id");
+    let tileX = tileId.split("-")[1];
+    let tileY = tileId.split("-")[2];
+    let neighbourTiles = getNeighbours(tileX, tileY);
 
     let selectedHandTileObj = $("#" + selectedHandTile);
 
@@ -125,14 +136,12 @@ function validTileOnClick() {
         .off("click mouseenter mouseleave");
     $(".active-handtile").css("background-color", "rgb(238, 220, 170)");
 
-    if(!first_move_flag) {
-        $(".playtile").each(function() {
-            if($(this).hasClass("placed-tile")) return;
-            $(this).addClass("valid-tile")
-                .on("click", validTileOnClick)
-                .on("mouseenter", validTileOnMouseEnter)
-                .on("mouseleave", validTileOnMouseLeave);
-        });
+    for(let i = 0; i < neighbourTiles.length; i++) {
+        if(neighbourTiles[i].hasClass("placed-tile")) continue;
+        neighbourTiles[i].addClass("valid-tile")
+            .on("click", validTileOnClick)
+            .on("mouseenter", validTileOnMouseEnter)
+            .on("mouseleave", validTileOnMouseLeave);
     }
 
     CurrentGameState = GameState.SELECT_HAND_TILE;
@@ -144,3 +153,25 @@ function validTileOnClick() {
 $(".valid-tile").on("mouseenter", validTileOnMouseEnter)
     .on("mouseleave", validTileOnMouseLeave)
     .on("click", validTileOnClick);
+
+function getNeighbours(x, y)
+{
+    let neighbourTiles = [];
+    x = parseInt(x);
+    y = parseInt(y);
+
+    try {
+        neighbourTiles.push($(`#tile-${x - 1}-${y}`));
+    } catch (err) {}
+    try {
+        neighbourTiles.push($(`#tile-${x + 1}-${y}`));
+    } catch (err) {}
+    try {
+        neighbourTiles.push($(`#tile-${x}-${y - 1}`));
+    } catch (err) {}
+    try {
+        neighbourTiles.push($(`#tile-${x}-${y + 1}`));
+    } catch (err) {}
+
+    return neighbourTiles;
+}
