@@ -22,13 +22,38 @@ td {
     text-align: center;
     width: min(5vw, 5vh);
     height: min(5vw, 5vh);
+    background-color: darkgreen;
+    color: white;
+    font-size: .75em;
+}
+
+.playtile {
+    background-color: rgb(200,200,200);
+    color: black;
     font-size: .5em;
+    font-weight: bold;
 }
 
-#hand-tiles td {
-    cursor: pointer;
+.valid-tile {
+    background-color: lightgreen;
 }
 
-#hand-tiles td:hover {
-    background-color: aquamarine;
+.valid-tile.triple-word {
+    background-color: rgb(255,0,0);
+}
+
+.valid-tile.triple-letter {
+    background-color: rgb(55, 176, 226);
+}
+
+.valid-tile.double-word {
+    background-color: rgb(255, 177, 53);
+}
+
+.valid-tile.double-letter {
+    background-color: rgb(255, 177, 53);
+}
+
+.placed-tile, .handtile {
+    font-size: 1.5em;
 }
