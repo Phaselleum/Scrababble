@@ -27,14 +27,10 @@ let letters = [
     "Z",
     " ", " "
 ];
-
 shuffle(letters);
 
 let fields = [];
-
-for(let i = 0; i < 15; i++) {
-    fields[i] = [];
-}
+for(let i = 0; i < 15; i++) { fields[i] = []; }
 
 let first_move_flag = false;
 
@@ -45,13 +41,16 @@ class GameState {
 
 let CurrentGameState = GameState.SELECT_HAND_TILE;
 
-    function draw() {
-    for(let i = 0; i < 7; i++)
-    {
-        $("#drawn" + i).text(letters.pop())
-            .css("background-color","rgb(238, 220, 170)")
-            .addClass("active-handtile");
-    }
+function draw() {
+    $(".handtile").each(function() {
+        if($(this).text() === "--") {
+            $(this).text(letters.pop())
+                .css("background-color","rgb(238, 220, 170)")
+                .addClass("active-handtile").on("click", activeHandTileOnClick)
+                .on("mouseenter", activeHandTileOnMouseEnter)
+                .on("mouseleave", activeHandTileOnMouseLeave);
+        }
+    });
 }
 
 draw();
@@ -73,7 +72,8 @@ function activeHandTileOnClick() {
 
 function activeHandTileOnMouseEnter() {
 
-    if(CurrentGameState !== GameState.SELECT_HAND_TILE && CurrentGameState !== GameState.SELECT_BOARD_TILE) return;
+    if(CurrentGameState !== GameState.SELECT_HAND_TILE
+        && CurrentGameState !== GameState.SELECT_BOARD_TILE) return;
 
     $(this).css("background-color", "rgb(250,208,103)")
         .css("cursor", "pointer");
@@ -88,10 +88,6 @@ function activeHandTileOnMouseLeave() {
         .css("cursor", "");
 
 }
-
-$(".active-handtile").on("click", activeHandTileOnClick)
-    .on("mouseenter", activeHandTileOnMouseEnter)
-    .on("mouseleave", activeHandTileOnMouseLeave);
 
 function validTileOnMouseEnter() {
 
@@ -156,8 +152,20 @@ $(".valid-tile").on("mouseenter", validTileOnMouseEnter)
     .on("mouseleave", validTileOnMouseLeave)
     .on("click", validTileOnClick);
 
-function getNeighbours(x, y)
-{
+
+function endTurn() {
+
+    if(CurrentGameState !== GameState.SELECT_HAND_TILE
+        && CurrentGameState !== GameState.SELECT_BOARD_TILE) return;
+
+    draw();
+}
+
+/********************
+ * FUNCTION LIBRARY *
+ ********************/
+
+function getNeighbours(x, y) {
     let neighbourTiles = [];
     x = parseInt(x);
     y = parseInt(y);
