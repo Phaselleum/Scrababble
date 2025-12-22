@@ -32,12 +32,12 @@ button {
     cursor: pointer;
 }
 
-button:hover {
+button:not([disabled]):hover {
     background-color: rgb(200, 200, 255);
     border-color: rgb(50, 50, 50);
 }
 
-.playtile {
+.playtile, .handtile {
     background-color: rgb(200,200,200);
     color: black;
     font-size: .5em;
