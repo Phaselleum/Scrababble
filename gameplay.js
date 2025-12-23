@@ -29,6 +29,7 @@ let letters = [
 ];
 
 shuffle(letters);
+let oldLetters = letters.slice();
 
 const lookupTable = {
     "A": {str: "A", val: 1},
@@ -57,15 +58,22 @@ const lookupTable = {
     "X": {str: "N", val: 8},
     "Y": {str: "Y", val: 4},
     "Z": {str: "Z", val: 10},
-    "*": {str: "*", val: 0},
+    "*": {str: ".", val: 0},
 };
 
 let dictionary = [{lang: "en", words: []}];
 
 let listedWords = [];
+let oldListedWords = [];
 
 let fields = [];
-for(let i = 0; i < 15; i++) { fields[i] = []; for(let j = 0; j < 15; j++) fields[i][j] = "";}
+let oldFields = [];
+for(let i = 0; i < 15; i++) {
+    fields[i] = [];
+    for(let j = 0; j < 15; j++) {fields[i][j] = "";}
+    oldFields[i] = fields[i].slice();
+}
+
 
 let first_move_flag = false;
 let tiles_placed_flag = false;
@@ -81,12 +89,15 @@ class GameState {
 
 let CurrentGameState = GameState.SELECT_HAND_TILE;
 
+let oldState = $("#game-wrapper").html();
+
 function loadWords() {
     $.get("words/dictionary-en.txt", function(data) {
         dictionary[0].words = data.split("\n");
         console.log("dictionary loaded. First word: " + dictionary[0].words[0]);
     });
 }
+loadWords();
 
 function draw() {
     $(".handtile").each(function() {
@@ -108,6 +119,7 @@ function draw() {
     });
     tiles_placed_flag = false;
     $("#redraw-button").removeAttr("disabled");
+    oldState = $("#game-wrapper").html();
 }
 
 draw();
@@ -195,7 +207,7 @@ function validTileOnClick() {
         .html(selectedHandTileObj.html());
 
     fields[tileX][tileY] = lookupTable[selectedHandTileObj.find(".letter").text()].str;
-    console.log("vtoc: " + fields[tileX][tileY]);
+    //console.log("vtoc: " + fields[tileX][tileY]);
     unsetHandtile("#" + selectedHandTile);
 
     $(".active-handtile").css("background-color", "rgb(238, 220, 170)");
@@ -227,9 +239,13 @@ function endTurn() {
 
         //check for word validity, else reset the turn
 
-        findWords();
+        if(!findWords()) resetTurn();
 
-        updateScore();
+        oldState = $("#game-wrapper").html();
+        oldLetters = letters.slice();
+        for(let i = 0; i < 15; i++) oldFields[i] = fields[i].slice();
+        oldListedWords = listedWords.slice();
+
         draw();
         return;
     }
@@ -322,6 +338,9 @@ function findMultipliers(tileId) {
     return multiplicator;
 }
 
+/**
+ * Find all words in the game and check each for validity. Reset the turn on fail.
+ */
 function findWords() {
     let foundWords = [];
 
@@ -365,14 +384,18 @@ function findWords() {
     for(let i = 0; i < foundWords.length; i++) {
         if(!checkWord(foundWords[i])) {
             alert("Word not in dictionary: " + foundWords[i]);
-            resetTurn();
+            return false;
         }
     }
+    return true;
 }
 
 function checkWord(word) {
     for(let i = 0; i < dictionary.length; i++) {
-        if(dictionary[i].words.includes(word)) return true;
+        const regexp = new RegExp(`^${word}$`, "i");
+        for(let j = 0; j < dictionary[i].words.length; j++) {
+            if(regexp.test(dictionary[i].words[j])) {console.log(dictionary[i].words[j]);return true;}
+        }
     }
     return false;
 }
@@ -395,6 +418,21 @@ function checkListedWordDuplicate(newWord) {
 
 function resetTurn() {
 
+    $("#game-wrapper").html(oldState);
+    letters = oldLetters.slice();
+    for(let i = 0; i < 15; i++) fields[i] = oldFields[i].slice();
+    listedWords = oldListedWords.slice();
+
+    $(".valid-tile").on("mouseenter", validTileOnMouseEnter)
+        .on("mouseleave", validTileOnMouseLeave)
+        .on("click", validTileOnClick);
+
+    $(".active-handtile").on("mouseenter", activeHandTileOnMouseEnter)
+        .on("mouseleave", activeHandTileOnMouseLeave)
+        .on("click", activeHandTileOnClick);
+
+
+    CurrentGameState = GameState.SELECT_HAND_TILE;
 }
 
 /********************
