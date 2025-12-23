@@ -220,8 +220,6 @@ function draw() {
         if($(this).find(".letter").text() === "--") {
             let tile = letters.pop();
             if(tile === undefined) {
-                CurrentGameState = GameState.GAME_OVER;
-                alert("Game Over!");
                 return;
             }
             $(this).find(".letter").text(tile);
@@ -365,6 +363,10 @@ function endTurn() {
         oldListedWords = listedWords.slice();
 
         draw();
+
+        if($(".active-handtile").length === 0) {
+            endGame();
+        }
         return;
     }
 
@@ -418,63 +420,37 @@ function unsetHandtile(tile) {
     $(tile).find(".tile-value").text("0");
 }
 
-function updateScore() {
-    $("#score").text(score);
-}
-
-function findMultipliers(tileId) {
-    ///WIP
-    let multiplicator = 1;
-
-    let tileX = tileId.split("-")[1];
-    let tileY = tileId.split("-")[2];
-
-    for(let i = tileX + 1; i < 15; i++) {
-        if(fields[i][tileY] === "") break;
-        if($(`#tile-${i}-${tileY}`).hasClass("double-word")) multiplicator *= 2;
-        if($(`#tile-${i}-${tileY}`).hasClass("triple-word")) multiplicator *= 3;
-    }
-
-    for(let i = tileX - 1; i >= 0; i--) {
-        if(fields[i][tileY] === "") break;
-        if($(`#tile-${i}-${tileY}`).hasClass("double-word")) multiplicator *= 2;
-        if($(`#tile-${i}-${tileY}`).hasClass("triple-word")) multiplicator *= 3;
-    }
-
-    for(let i = tileY + 1; i < 15; i++) {
-        if(fields[tileX][i] === "") break;
-        if($(`#tile-${tileX}-${i}`).hasClass("double-word")) multiplicator *= 2;
-        if($(`#tile-${tileX}-${i}`).hasClass("triple-word")) multiplicator *= 3;
-    }
-
-    for(let i = tileX - 1; i >= 0; i--) {
-        if(fields[i][tileY] === "") break;
-        if($(`#tile-${i}-${tileY}`).hasClass("double-word")) multiplicator *= 2;
-        if($(`#tile-${i}-${tileY}`).hasClass("triple-word")) multiplicator *= 3;
-    }
-
-    return multiplicator;
-}
-
 /**
  * Find all words in the game and check each for validity. Reset the turn on fail.
  */
 function findWords() {
-    let foundWords = [];
+    let foundWords = listedWords;
 
     //find words across
     for(let i = 0; i < 15; i++) {
         let currentWord = "";
+        let wordStart = 0;
         for(let j = 0; j < 15; j++) {
             let charstr = fields[j][i];
             if(charstr === "") {
                 if(currentWord === "") continue;
                 //don't push 1-letter words
                 if(currentWord.length > 1) {
-                    foundWords.push(currentWord);
+                    let wordObj = {
+                        word: currentWord,
+                        x: wordStart,
+                        y: i,
+                        end: j,
+                        direction: "across",
+                        langs: []
+                    };
+                    foundWords.push(wordObj);
                 }
                 currentWord = "";
             } else {
+                if(currentWord === "") {
+                    wordStart = j;
+                }
                 currentWord += charstr;
             }
         }
@@ -483,16 +459,28 @@ function findWords() {
     //find words down
     for(let i = 0; i < 15; i++) {
         let currentWord = "";
+        let wordStart = 0;
         for(let j = 0; j < 15; j++) {
             let charstr = fields[i][j];
             if(charstr === "") {
                 if(currentWord === "") continue;
                 //don't push 1-letter words
                 if(currentWord.length > 1) {
-                    foundWords.push(currentWord);
+                    let wordObj = {
+                        word: currentWord,
+                        x: i,
+                        y: wordStart,
+                        end: j,
+                        direction: "down",
+                        langs: []
+                    };
+                    foundWords.push(wordObj);
                 }
                 currentWord = "";
             } else {
+                if(currentWord === "") {
+                    wordStart = j;
+                }
                 currentWord += charstr;
             }
         }
@@ -501,38 +489,81 @@ function findWords() {
     console.log(foundWords);
     for(let i = 0; i < foundWords.length; i++) {
         if(!checkWord(foundWords[i])) {
-            alert("Word not in dictionary: " + foundWords[i]);
+            alert("Word not in dictionary: " + foundWords[i].word);
             return false;
         }
     }
-    $("#found-words").text(foundWords.join());
+    $("#found-words").text(foundWords.map(wordObj => wordObj.word).join());
     return true;
 }
 
 function checkWord(word) {
     for(let i = 0; i < dictionary.length; i++) {
-        const regexp = new RegExp(`^${word}$`, "i");
+        const regexp = new RegExp(`^${word.word}$`, "i");
         for(let j = 0; j < dictionary[i].words.length; j++) {
-            if(regexp.test(dictionary[i].words[j])) {console.log(dictionary[i].words[j]);return true;}
+            if(regexp.test(dictionary[i].words[j])) {word.langs.push(langs[i]);}
         }
     }
-    return false;
+    return word.langs.length > 0;
 }
 
-/**
- * Check a given word object for matched in already found words. Add to listedWords or replace where appropriate
- * @param newWord word object with .word, .x, .y and .direction
- */
-function checkListedWordDuplicate(newWord) {
-    for(let i = 0; i < listedWords.length; i++) {
-        if(newWord.direction === listedWords[i].direction
-            && (newWord.x === listedWords[i].x || newWord.y === listedWords[i].y)
-            && newWord.word.includes(listedWords[i].word)) {
-            listedWords[i] = newWord;
-            return;
+function endGame() {
+    CurrentGameState = GameState.GAME_OVER;
+    alert("Game Over! Find your scores in the Scores section below");
+    populateScores();
+}
+
+function populateScores() {
+    let totalScore = 0;
+    let scoresHTML = "";
+    console.log(listedWords.length);
+    for(let k = 0; k < listedWords.length; k++) {
+        let score = wordScore(listedWords[k]);
+        scoresHTML += `${listedWords[k].word} (${listedWords[k].langs.join("/")}): ${score}<br>`;
+        totalScore += score;
+    }
+    scoresHTML += `<br>TOTAL: ${totalScore}`;
+    $("#word-scores").html(scoresHTML);
+}
+
+function wordScore(wordObj) {
+    let multiplier = 1;
+    let lang0Score = 0;
+    let lang1Score = 0;
+    if(wordObj.direction === "across") {
+        for(let i = wordObj.x; i < wordObj.end; i++) {
+            let currentTile = $(`#tile-${i}-${wordObj.y}`);
+            let tileLang0Score = parseInt(currentTile.find(".tile-value").text());
+            let tileLang1Score = parseInt(currentTile.find(".tile-alt-value").text());
+            if(isNaN(tileLang0Score)) tileLang0Score = tileLang1Score;
+            if(isNaN(tileLang1Score)) tileLang1Score = tileLang0Score;
+            let tileMultiplier = 1;
+            if(currentTile.hasClass("double-letter")) tileMultiplier = 2;
+            if(currentTile.hasClass("triple-letter")) tileMultiplier = 3;
+            if(currentTile.hasClass("double-word")) multiplier = 2;
+            if(currentTile.hasClass("triple-word")) multiplier = 3;
+            lang0Score += tileLang0Score * tileMultiplier;
+            lang1Score += tileLang1Score * tileMultiplier;
         }
     }
-    listedWords.push(newWord);
+    if(wordObj.direction === "down") {
+        for(let i = wordObj.y; i < wordObj.end; i++) {
+            let currentTile = $(`#tile-${wordObj.x}-${i}`);
+            let tileLang0Score = parseInt(currentTile.find(".tile-value").text());
+            let tileLang1Score = parseInt(currentTile.find(".tile-alt-value").text());
+            if(isNaN(tileLang0Score)) tileLang0Score = tileLang1Score;
+            if(isNaN(tileLang1Score)) tileLang1Score = tileLang0Score;
+            let tileMultiplier = 1;
+            if(currentTile.hasClass("double-letter")) tileMultiplier = 2;
+            if(currentTile.hasClass("triple-letter")) tileMultiplier = 3;
+            if(currentTile.hasClass("double-word")) multiplier = 2;
+            if(currentTile.hasClass("triple-word")) multiplier = 3;
+            lang0Score += tileLang0Score * tileMultiplier;
+            lang1Score += tileLang1Score * tileMultiplier;
+        }
+    }
+    if(wordObj.langs.length > 1) return Math.min(lang0Score, lang1Score) * multiplier;
+    return wordObj.langs[0] === langs[0] ? lang0Score : lang1Score;
 }
 
 function resetTurn() {
