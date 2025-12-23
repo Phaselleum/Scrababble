@@ -472,3 +472,36 @@ function shuffle(array) {
         [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
     }
 }
+
+
+
+/*function downloadFilteredFile(url) {
+    let outputFilename = url;
+    $.get("words/" + url, function (data) {
+        // Split into lines (handles \r\n and \n)
+        const lines = data.split(/\r?\n/);
+
+        // Filter lines between 2 and 15 characters
+        const filtered = lines.filter(function (line) {
+            const len = line.length;
+            return len >= 2 && len <= 15;
+        });
+
+        // Join back to a single string
+        const result = filtered.join('\n');
+
+        // Create a Blob and trigger download
+        const blob = new Blob([result], { type: 'text/plain;charset=utf-8' });
+        const link = document.createElement('a');
+        const urlObject = URL.createObjectURL(blob);
+
+        link.href = urlObject;
+        link.download = outputFilename;
+        document.body.appendChild(link);
+        link.click();
+
+        // Cleanup
+        document.body.removeChild(link);
+        URL.revokeObjectURL(urlObject);
+    }, 'text');
+}*/
