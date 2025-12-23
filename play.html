@@ -9,6 +9,7 @@
 <body>
     <h1>SCRABABBLE</h1>
     <!--<b>Score: <span id="score">0</span></b>-->
+    <table><td class="handtile-sample"><span class="letter">?</span><div class="tile-value">DE</div><div class="tile-alt-value">EN</div></td></table>
     <div id="game-wrapper">
         <table id="board">
             <tr>
@@ -338,13 +339,13 @@
         <hr>
         <table>
             <tr>
-                <td id="drawn0" class="handtile"><span class="letter">--</span><div class="tile-value">0</div></td>
-                <td id="drawn1" class="handtile"><span class="letter">--</span><div class="tile-value">0</div></td>
-                <td id="drawn2" class="handtile"><span class="letter">--</span><div class="tile-value">0</div></td>
-                <td id="drawn3" class="handtile"><span class="letter">--</span><div class="tile-value">0</div></td>
-                <td id="drawn4" class="handtile"><span class="letter">--</span><div class="tile-value">0</div></td>
-                <td id="drawn5" class="handtile"><span class="letter">--</span><div class="tile-value">0</div></td>
-                <td id="drawn6" class="handtile"><span class="letter">--</span><div class="tile-value">0</div></td>
+                <td id="drawn0" class="handtile"><span class="letter">--</span><div class="tile-value">0</div><div class="tile-alt-value">0</div></td>
+                <td id="drawn1" class="handtile"><span class="letter">--</span><div class="tile-value">0</div><div class="tile-alt-value">0</div></td>
+                <td id="drawn2" class="handtile"><span class="letter">--</span><div class="tile-value">0</div><div class="tile-alt-value">0</div></td>
+                <td id="drawn3" class="handtile"><span class="letter">--</span><div class="tile-value">0</div><div class="tile-alt-value">0</div></td>
+                <td id="drawn4" class="handtile"><span class="letter">--</span><div class="tile-value">0</div><div class="tile-alt-value">0</div></td>
+                <td id="drawn5" class="handtile"><span class="letter">--</span><div class="tile-value">0</div><div class="tile-alt-value">0</div></td>
+                <td id="drawn6" class="handtile"><span class="letter">--</span><div class="tile-value">0</div><div class="tile-alt-value">0</div></td>
             </tr>
         </table>
     </div>
@@ -352,6 +353,8 @@
     <button onclick="endTurn()">END TURN</button>
     <button onclick="redraw()" id="redraw-button">SWAP TILES</button>
     <hr>
+    <h2>WORDS FOUND</h2>
+    <span id="found-words"></span><br><br><br>
     <script src="gameplay.js"></script>
 </body>
 </html>

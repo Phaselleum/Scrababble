@@ -1,34 +1,5 @@
-let letters = [
-    "A", "A", "A", "A",
-    "B",
-    "C",
-    "D", "D",
-    "E", "E", "E", "E", "E", "E",
-    "F",
-    "G",
-    "H",
-    "I", "I", "I", "I",
-    "J",
-    "K",
-    "L", "L",
-    "M",
-    "N", "N", "N",
-    "O", "O", "O", "O",
-    "P",
-    "Q",
-    "R", "R",
-    "S", "S",
-    "T", "T",
-    "U", "U",
-    "V",
-    "W",
-    "X",
-    "Y",
-    "Z",
-    "*"
-];
+let letters = [];
 
-shuffle(letters);
 let oldLetters = letters.slice();
 
 const lookupTable = {
@@ -228,6 +199,22 @@ function loadWords() {
 }
 loadWords();
 
+function setupLetters() {
+    for(let i = 0; i < langs.length; i++) {
+        for(let [letter,obj] of Object.entries(lookupTable[langs[i]])) {
+            for(let j = 0; j < obj.freq; j++) {
+                letters.push(letter);
+            }
+        }
+    }
+    shuffle(letters);
+    console.log(letters);
+
+    $(".handtile-sample").find(".tile-value").text(langs[0]);
+    $(".handtile-sample").find(".tile-alt-value").text(langs[1]);
+}
+setupLetters();
+
 function draw() {
     $(".handtile").each(function() {
         if($(this).find(".letter").text() === "--") {
@@ -243,7 +230,8 @@ function draw() {
                 .on("mouseenter", activeHandTileOnMouseEnter)
                 .on("mouseleave", activeHandTileOnMouseLeave);
             //console.log(lookupTable[tile].val);
-            $(this).find(".tile-value").text(lookupTable.en[tile].val);
+            $(this).find(".tile-value").text(lookupTable[langs[0]][tile] ? lookupTable.en[tile].val : "-");
+            $(this).find(".tile-alt-value").text(lookupTable[langs[1]][tile] ? lookupTable.de[tile].val : "-");
         }
     });
     tiles_placed_flag = false;
@@ -335,7 +323,8 @@ function validTileOnClick() {
         .addClass("new-tile")
         .html(selectedHandTileObj.html());
 
-    fields[tileX][tileY] = lookupTable.en[selectedHandTileObj.find(".letter").text()].str;
+    let literal = selectedHandTileObj.find(".letter").text();
+    fields[tileX][tileY] = lookupTable[langs[0]][literal] ? lookupTable[langs[0]][literal].str : lookupTable[langs[1]][literal].str;
     //console.log("vtoc: " + fields[tileX][tileY]);
     unsetHandtile("#" + selectedHandTile);
 
@@ -516,6 +505,7 @@ function findWords() {
             return false;
         }
     }
+    $("#found-words").text(foundWords.join());
     return true;
 }
 
