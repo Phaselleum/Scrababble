@@ -155,7 +155,8 @@ const lookupTable = {
     "*": {str: ".", val: 0, freq: 1}
 }};
 
-let langs = ["en", "de"];
+let langs = [new URL(window.location.href).searchParams.get("lang0") ?? "en",
+    new URL(window.location.href).searchParams.get("lang0") ?? "de"];
 
 let dictionary = [{lang: "en", words: []}];
 
@@ -504,6 +505,7 @@ function checkWord(word) {
             if(regexp.test(dictionary[i].words[j])) {word.langs.push(langs[i]);}
         }
     }
+    word.langs = [...new Set(word.langs)]
     return word.langs.length > 0;
 }
 
