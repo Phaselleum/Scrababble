@@ -18,6 +18,8 @@ td {
     text-align: center;
     width: min(5vw, 5vh);
     height: min(5vw, 5vh);
+    min-width: 32px;
+    min-height: 32px;
     background-color: darkgreen;
     color: white;
     font-size: .75em;
@@ -42,6 +44,7 @@ button:not([disabled]):hover {
     color: black;
     font-size: .5em;
     font-weight: bold;
+    position: relative;
 }
 
 .valid-tile {
@@ -66,4 +69,12 @@ button:not([disabled]):hover {
 
 .placed-tile, .handtile {
     font-size: 1.5em;
+}
+
+.tile-value {
+    font-size: .5em;
+    text-align: right;
+    position: absolute;
+    right: 5%;
+    bottom: 0;
 }

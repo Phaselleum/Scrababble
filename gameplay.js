@@ -31,33 +31,33 @@ let letters = [
 shuffle(letters);
 
 const lookupTable = {
-    "A": "A",
-    "B": "B",
-    "C": "C",
-    "D": "D",
-    "E": "E",
-    "F": "F",
-    "G": "G",
-    "H": "H",
-    "I": "I",
-    "J": "J",
-    "K": "K",
-    "L": "L",
-    "M": "M",
-    "N": "N",
-    "O": "O",
-    "P": "P",
-    "Q": "Q",
-    "R": "R",
-    "S": "S",
-    "T": "T",
-    "U": "U",
-    "V": "V",
-    "W": "W",
-    "X": "X",
-    "Y": "Y",
-    "Z": "Z",
-    " ": " "
+    "A": {str: "A", val: 1},
+    "B": {str: "B", val: 3},
+    "C": {str: "C", val: 3},
+    "D": {str: "D", val: 2},
+    "E": {str: "E", val: 1},
+    "F": {str: "F", val: 4},
+    "G": {str: "G", val: 2},
+    "H": {str: "H", val: 4},
+    "I": {str: "I", val: 1},
+    "J": {str: "J", val: 8},
+    "K": {str: "K", val: 5},
+    "L": {str: "L", val: 1},
+    "M": {str: "M", val: 3},
+    "N": {str: "N", val: 1},
+    "O": {str: "O", val: 1},
+    "P": {str: "P", val: 3},
+    "Q": {str: "Q", val: 10},
+    "R": {str: "R", val: 1},
+    "S": {str: "S", val: 1},
+    "T": {str: "T", val: 1},
+    "U": {str: "U", val: 1},
+    "V": {str: "V", val: 4},
+    "W": {str: "W", val: 4},
+    "X": {str: "N", val: 8},
+    "Y": {str: "Y", val: 4},
+    "Z": {str: "Z", val: 10},
+    " ": {str: " ", val: 0},
 };
 
 let fields = [];
@@ -77,18 +77,20 @@ let CurrentGameState = GameState.SELECT_HAND_TILE;
 
 function draw() {
     $(".handtile").each(function() {
-        if($(this).text() === "--") {
+        if($(this).find(".letter").text() === "--") {
             let tile = letters.pop();
             if(tile === undefined) {
                 CurrentGameState = GameState.GAME_OVER;
                 alert("Game Over!");
                 return;
             }
-            $(this).text(tile)
-                .css("background-color","rgb(238, 220, 170)")
+            $(this).find(".letter").text(tile);
+            $(this).css("background-color","rgb(238, 220, 170)")
                 .addClass("active-handtile").on("click", activeHandTileOnClick)
                 .on("mouseenter", activeHandTileOnMouseEnter)
                 .on("mouseleave", activeHandTileOnMouseLeave);
+            console.log(lookupTable[tile].val);
+            $(this).find(".tile-value").text(lookupTable[tile].val);
         }
     });
     tiles_placed_flag = false;
@@ -176,7 +178,7 @@ function validTileOnClick() {
         .css("cursor", "")
         .removeClass("active-tile")
         .addClass("placed-tile")
-        .text(selectedHandTileObj.text());
+        .html(selectedHandTileObj.html());
 
     unsetHandtile("#" + selectedHandTile);
 
@@ -212,7 +214,7 @@ function endTurn() {
 
     if(CurrentGameState === GameState.SELECT_REPLACE_TILES) {
         $(".selected-handtile").each(function() {
-            letters.push($(this).text());
+            letters.push($(this).find(".letter").text());
             unsetHandtile(this);
         });
         shuffle(letters);
@@ -252,11 +254,12 @@ function selectReplacementTiles(obj) {
 }
 
 function unsetHandtile(tile) {
-    $(tile).text("--")
-        .css("background-color", "rgb(200,200,200)")
+    $(tile).find(".letter").text("--");
+    $(tile).css("background-color", "rgb(200,200,200)")
         .css("cursor", "")
         .removeClass("active-handtile")
         .off("click mouseenter mouseleave");
+    $(tile).find(".tile-value").text("0");
 }
 
 /********************
