@@ -25,7 +25,7 @@ let letters = [
     "X",
     "Y",
     "Z",
-    " "
+    "*"
 ];
 
 shuffle(letters);
@@ -57,14 +57,20 @@ const lookupTable = {
     "X": {str: "N", val: 8},
     "Y": {str: "Y", val: 4},
     "Z": {str: "Z", val: 10},
-    " ": {str: " ", val: 0},
+    "*": {str: "*", val: 0},
 };
 
+let dictionary = [{lang: "en", words: []}];
+
+let listedWords = [];
+
 let fields = [];
-for(let i = 0; i < 15; i++) { fields[i] = []; }
+for(let i = 0; i < 15; i++) { fields[i] = []; for(let j = 0; j < 15; j++) fields[i][j] = "";}
 
 let first_move_flag = false;
 let tiles_placed_flag = false;
+
+let score = 0;
 
 class GameState {
     static SELECT_HAND_TILE = 0;
@@ -74,6 +80,13 @@ class GameState {
 }
 
 let CurrentGameState = GameState.SELECT_HAND_TILE;
+
+function loadWords() {
+    $.get("words/dictionary-en.txt", function(data) {
+        dictionary[0].words = data.split("\n");
+        console.log("dictionary loaded. First word: " + dictionary[0].words[0]);
+    });
+}
 
 function draw() {
     $(".handtile").each(function() {
@@ -89,7 +102,7 @@ function draw() {
                 .addClass("active-handtile").on("click", activeHandTileOnClick)
                 .on("mouseenter", activeHandTileOnMouseEnter)
                 .on("mouseleave", activeHandTileOnMouseLeave);
-            console.log(lookupTable[tile].val);
+            //console.log(lookupTable[tile].val);
             $(this).find(".tile-value").text(lookupTable[tile].val);
         }
     });
@@ -178,8 +191,11 @@ function validTileOnClick() {
         .css("cursor", "")
         .removeClass("active-tile")
         .addClass("placed-tile")
+        .addClass("new-tile")
         .html(selectedHandTileObj.html());
 
+    fields[tileX][tileY] = lookupTable[selectedHandTileObj.find(".letter").text()].str;
+    console.log("vtoc: " + fields[tileX][tileY]);
     unsetHandtile("#" + selectedHandTile);
 
     $(".active-handtile").css("background-color", "rgb(238, 220, 170)");
@@ -208,6 +224,12 @@ function endTurn() {
 
     if(CurrentGameState === GameState.SELECT_HAND_TILE
         || CurrentGameState === GameState.SELECT_BOARD_TILE) {
+
+        //check for word validity, else reset the turn
+
+        findWords();
+
+        updateScore();
         draw();
         return;
     }
@@ -260,6 +282,119 @@ function unsetHandtile(tile) {
         .removeClass("active-handtile")
         .off("click mouseenter mouseleave");
     $(tile).find(".tile-value").text("0");
+}
+
+function updateScore() {
+    $("#score").text(score);
+}
+
+function findMultipliers(tileId) {
+    ///WIP
+    let multiplicator = 1;
+
+    let tileX = tileId.split("-")[1];
+    let tileY = tileId.split("-")[2];
+
+    for(let i = tileX + 1; i < 15; i++) {
+        if(fields[i][tileY] === "") break;
+        if($(`#tile-${i}-${tileY}`).hasClass("double-word")) multiplicator *= 2;
+        if($(`#tile-${i}-${tileY}`).hasClass("triple-word")) multiplicator *= 3;
+    }
+
+    for(let i = tileX - 1; i >= 0; i--) {
+        if(fields[i][tileY] === "") break;
+        if($(`#tile-${i}-${tileY}`).hasClass("double-word")) multiplicator *= 2;
+        if($(`#tile-${i}-${tileY}`).hasClass("triple-word")) multiplicator *= 3;
+    }
+
+    for(let i = tileY + 1; i < 15; i++) {
+        if(fields[tileX][i] === "") break;
+        if($(`#tile-${tileX}-${i}`).hasClass("double-word")) multiplicator *= 2;
+        if($(`#tile-${tileX}-${i}`).hasClass("triple-word")) multiplicator *= 3;
+    }
+
+    for(let i = tileX - 1; i >= 0; i--) {
+        if(fields[i][tileY] === "") break;
+        if($(`#tile-${i}-${tileY}`).hasClass("double-word")) multiplicator *= 2;
+        if($(`#tile-${i}-${tileY}`).hasClass("triple-word")) multiplicator *= 3;
+    }
+
+    return multiplicator;
+}
+
+function findWords() {
+    let foundWords = [];
+
+    //find words across
+    for(let i = 0; i < 15; i++) {
+        let currentWord = "";
+        for(let j = 0; j < 15; j++) {
+            let charstr = fields[j][i];
+            if(charstr === "") {
+                if(currentWord === "") continue;
+                //don't push 1-letter words
+                if(currentWord.length > 1) {
+                    foundWords.push(currentWord);
+                }
+                currentWord = "";
+            } else {
+                currentWord += charstr;
+            }
+        }
+    }
+
+    //find words down
+    for(let i = 0; i < 15; i++) {
+        let currentWord = "";
+        for(let j = 0; j < 15; j++) {
+            let charstr = fields[i][j];
+            if(charstr === "") {
+                if(currentWord === "") continue;
+                //don't push 1-letter words
+                if(currentWord.length > 1) {
+                    foundWords.push(currentWord);
+                }
+                currentWord = "";
+            } else {
+                currentWord += charstr;
+            }
+        }
+    }
+
+    console.log(foundWords);
+    for(let i = 0; i < foundWords.length; i++) {
+        if(!checkWord(foundWords[i])) {
+            alert("Word not in dictionary: " + foundWords[i]);
+            resetTurn();
+        }
+    }
+}
+
+function checkWord(word) {
+    for(let i = 0; i < dictionary.length; i++) {
+        if(dictionary[i].words.includes(word)) return true;
+    }
+    return false;
+}
+
+/**
+ * Check a given word object for matched in already found words. Add to listedWords or replace where appropriate
+ * @param newWord word object with .word, .x, .y and .direction
+ */
+function checkListedWordDuplicate(newWord) {
+    for(let i = 0; i < listedWords.length; i++) {
+        if(newWord.direction === listedWords[i].direction
+            && (newWord.x === listedWords[i].x || newWord.y === listedWords[i].y)
+            && newWord.word.includes(listedWords[i].word)) {
+            listedWords[i] = newWord;
+            return;
+        }
+    }
+    listedWords.push(newWord);
+}
+
+function resetTurn() {
+
 }
 
 /********************
