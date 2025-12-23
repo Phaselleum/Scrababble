@@ -32,34 +32,159 @@ shuffle(letters);
 let oldLetters = letters.slice();
 
 const lookupTable = {
-    "A": {str: "A", val: 1},
-    "B": {str: "B", val: 3},
-    "C": {str: "C", val: 3},
-    "D": {str: "D", val: 2},
-    "E": {str: "E", val: 1},
-    "F": {str: "F", val: 4},
-    "G": {str: "G", val: 2},
-    "H": {str: "H", val: 4},
-    "I": {str: "I", val: 1},
-    "J": {str: "J", val: 8},
-    "K": {str: "K", val: 5},
-    "L": {str: "L", val: 1},
-    "M": {str: "M", val: 3},
-    "N": {str: "N", val: 1},
-    "O": {str: "O", val: 1},
-    "P": {str: "P", val: 3},
-    "Q": {str: "Q", val: 10},
-    "R": {str: "R", val: 1},
-    "S": {str: "S", val: 1},
-    "T": {str: "T", val: 1},
-    "U": {str: "U", val: 1},
-    "V": {str: "V", val: 4},
-    "W": {str: "W", val: 4},
-    "X": {str: "N", val: 8},
-    "Y": {str: "Y", val: 4},
-    "Z": {str: "Z", val: 10},
-    "*": {str: ".", val: 0},
-};
+    "en": {
+    "A": {str: "A", val: 1, freq: 4},
+    "B": {str: "B", val: 3, freq: 1},
+    "C": {str: "C", val: 3, freq: 1},
+    "D": {str: "D", val: 2, freq: 2},
+    "E": {str: "E", val: 1, freq: 6},
+    "F": {str: "F", val: 4, freq: 1},
+    "G": {str: "G", val: 2, freq: 1},
+    "H": {str: "H", val: 4, freq: 1},
+    "I": {str: "I", val: 1, freq: 4},
+    "J": {str: "J", val: 8, freq: 1},
+    "K": {str: "K", val: 5, freq: 1},
+    "L": {str: "L", val: 1, freq: 2},
+    "M": {str: "M", val: 3, freq: 1},
+    "N": {str: "N", val: 1, freq: 3},
+    "O": {str: "O", val: 1, freq: 4},
+    "P": {str: "P", val: 3, freq: 1},
+    "Q": {str: "Q", val: 10, freq: 1},
+    "R": {str: "R", val: 1, freq: 3},
+    "S": {str: "S", val: 1, freq: 2},
+    "T": {str: "T", val: 1, freq: 3},
+    "U": {str: "U", val: 1, freq: 2},
+    "V": {str: "V", val: 4, freq: 1},
+    "W": {str: "W", val: 4, freq: 1},
+    "X": {str: "N", val: 8, freq: 1},
+    "Y": {str: "Y", val: 4, freq: 1},
+    "Z": {str: "Z", val: 10, freq: 1},
+    "*": {str: ".", val: 0, freq: 1}
+}, "de": {
+    "A": {str: "A", val: 1, freq: 2},
+    "B": {str: "B", val: 3, freq: 1},
+    "C": {str: "C", val: 4, freq: 1},
+    "D": {str: "D", val: 1, freq: 2},
+    "E": {str: "E", val: 1, freq: 7},
+    "F": {str: "F", val: 4, freq: 1},
+    "G": {str: "G", val: 2, freq: 1},
+    "H": {str: "H", val: 2, freq: 2},
+    "I": {str: "I", val: 1, freq: 3},
+    "J": {str: "J", val: 6, freq: 1},
+    "K": {str: "K", val: 4, freq: 1},
+    "L": {str: "L", val: 2, freq: 1},
+    "M": {str: "M", val: 3, freq: 2},
+    "N": {str: "N", val: 1, freq: 4},
+    "O": {str: "O", val: 2, freq: 1},
+    "P": {str: "P", val: 4, freq: 1},
+    "Q": {str: "Q", val: 10, freq: 1},
+    "R": {str: "R", val: 1, freq: 3},
+    "S": {str: "S", val: 1, freq: 3},
+    "T": {str: "T", val: 1, freq: 3},
+    "U": {str: "U", val: 1, freq: 3},
+    "V": {str: "V", val: 6, freq: 1},
+    "W": {str: "W", val: 3, freq: 1},
+    "X": {str: "N", val: 8, freq: 1},
+    "Y": {str: "Y", val: 10, freq: 1},
+    "Z": {str: "Z", val: 3, freq: 1},
+    "Ä": {str: "AE", val: 6, freq: 1},
+    "Ö": {str: "OE", val: 8, freq: 1},
+    "Ü": {str: "UE", val: 6, freq: 1},
+    "*": {str: ".", val: 0, freq: 1}
+}, "es": {
+    "A": {str: "A", val: 1, freq: 6},
+    "B": {str: "B", val: 3, freq: 1},
+    "C": {str: "C", val: 3, freq: 2},
+    "D": {str: "D", val: 2, freq: 2},
+    "E": {str: "E", val: 1, freq: 6},
+    "F": {str: "F", val: 4, freq: 1},
+    "G": {str: "G", val: 2, freq: 1},
+    "H": {str: "H", val: 4, freq: 1},
+    "I": {str: "I", val: 1, freq: 3},
+    "J": {str: "J", val: 8, freq: 1},
+    "L": {str: "L", val: 1, freq: 2},
+    "M": {str: "M", val: 3, freq: 1},
+    "N": {str: "N", val: 1, freq: 2},
+    "O": {str: "O", val: 1, freq: 4},
+    "P": {str: "P", val: 3, freq: 1},
+    "Q": {str: "Q", val: 5, freq: 1},
+    "R": {str: "R", val: 1, freq: 2},
+    "S": {str: "S", val: 1, freq: 3},
+    "T": {str: "T", val: 1, freq: 2},
+    "U": {str: "U", val: 1, freq: 2},
+    "V": {str: "V", val: 4, freq: 1},
+    "X": {str: "N", val: 8, freq: 1},
+    "Y": {str: "Y", val: 4, freq: 1},
+    "Z": {str: "Z", val: 10, freq: 1},
+    "CH": {str: "CH", val: 5, freq: 1},
+    "LL": {str: "LL", val: 8, freq: 1},
+    "RR": {str: "RR", val: 8, freq: 1},
+    "Ñ": {str: "NY", val: 8, freq: 1},
+    "*": {str: ".", val: 0, freq: 1}
+}, "fr": {
+    "A": {str: "A", val: 1, freq: 4},
+    "B": {str: "B", val: 3, freq: 1},
+    "C": {str: "C", val: 3, freq: 1},
+    "D": {str: "D", val: 2, freq: 1},
+    "E": {str: "E", val: 1, freq: 7},
+    "F": {str: "F", val: 4, freq: 1},
+    "G": {str: "G", val: 2, freq: 1},
+    "H": {str: "H", val: 4, freq: 1},
+    "I": {str: "I", val: 1, freq: 4},
+    "J": {str: "J", val: 8, freq: 1},
+    "K": {str: "J", val: 6, freq: 1},
+    "L": {str: "L", val: 1, freq: 2},
+    "M": {str: "M", val: 2, freq: 1},
+    "N": {str: "N", val: 1, freq: 3},
+    "O": {str: "O", val: 1, freq: 3},
+    "P": {str: "P", val: 3, freq: 1},
+    "Q": {str: "Q", val: 8, freq: 1},
+    "R": {str: "R", val: 1, freq: 3},
+    "S": {str: "S", val: 1, freq: 3},
+    "T": {str: "T", val: 1, freq: 3},
+    "U": {str: "U", val: 1, freq: 3},
+    "V": {str: "V", val: 4, freq: 1},
+    "W": {str: "V", val: 10, freq: 1},
+    "X": {str: "N", val: 10, freq: 1},
+    "Y": {str: "Y", val: 10, freq: 1},
+    "Z": {str: "Z", val: 10, freq: 1},
+    "*": {str: ".", val: 0, freq: 1}
+}, "pl": {
+    "A": {str: "A", val: 1, freq: 4},
+    "B": {str: "B", val: 3, freq: 1},
+    "C": {str: "C", val: 2, freq: 1},
+    "D": {str: "D", val: 2, freq: 1},
+    "E": {str: "E", val: 1, freq: 3},
+    "F": {str: "F", val: 5, freq: 1},
+    "G": {str: "G", val: 3, freq: 1},
+    "H": {str: "H", val: 3, freq: 1},
+    "I": {str: "I", val: 1, freq: 4},
+    "J": {str: "J", val: 3, freq: 1},
+    "K": {str: "J", val: 2, freq: 1},
+    "M": {str: "M", val: 2, freq: 1},
+    "N": {str: "N", val: 1, freq: 2},
+    "O": {str: "O", val: 1, freq: 3},
+    "P": {str: "P", val: 2, freq: 1},
+    "R": {str: "R", val: 1, freq: 2},
+    "S": {str: "S", val: 1, freq: 2},
+    "T": {str: "T", val: 2, freq: 1},
+    "U": {str: "U", val: 3, freq: 1},
+    "W": {str: "V", val: 1, freq: 2},
+    "Y": {str: "Y", val: 2, freq: 2},
+    "Z": {str: "Z", val: 1, freq: 2},
+    "Ł": {str: "W", val: 3, freq: 1},
+    "Ą": {str: "A", val: 5, freq: 1},
+    "Ę": {str: "E", val: 5, freq: 1},
+    "Ó": {str: "U", val: 5, freq: 1},
+    "Ś": {str: "S", val: 5, freq: 1},
+    "Ż": {str: "Z", val: 5, freq: 1},
+    "Ć": {str: "CI", val: 6, freq: 1},
+    "Ń": {str: "NY", val: 7, freq: 1},
+    "Ź": {str: "Z", val: 9, freq: 1},
+    "*": {str: ".", val: 0, freq: 1}
+}};
+
+let langs = ["en", "de"];
 
 let dictionary = [{lang: "en", words: []}];
 
@@ -92,10 +217,14 @@ let CurrentGameState = GameState.SELECT_HAND_TILE;
 let oldState = $("#game-wrapper").html();
 
 function loadWords() {
-    $.get("words/dictionary-en.txt", function(data) {
-        dictionary[0].words = data.split("\n");
-        console.log("dictionary loaded. First word: " + dictionary[0].words[0]);
-    });
+    for(let i = 0; i < langs.length; i++) {
+        dictionary.push({lang: langs[i], words: []});
+
+        $.get("words/dictionary-" + langs[i] + ".txt", function(data) {
+            dictionary[i].words = data.split("\n");
+            console.log("dictionary loaded. First word: " + dictionary[i].words[0]);
+        });
+    }
 }
 loadWords();
 
@@ -114,7 +243,7 @@ function draw() {
                 .on("mouseenter", activeHandTileOnMouseEnter)
                 .on("mouseleave", activeHandTileOnMouseLeave);
             //console.log(lookupTable[tile].val);
-            $(this).find(".tile-value").text(lookupTable[tile].val);
+            $(this).find(".tile-value").text(lookupTable.en[tile].val);
         }
     });
     tiles_placed_flag = false;
@@ -206,7 +335,7 @@ function validTileOnClick() {
         .addClass("new-tile")
         .html(selectedHandTileObj.html());
 
-    fields[tileX][tileY] = lookupTable[selectedHandTileObj.find(".letter").text()].str;
+    fields[tileX][tileY] = lookupTable.en[selectedHandTileObj.find(".letter").text()].str;
     //console.log("vtoc: " + fields[tileX][tileY]);
     unsetHandtile("#" + selectedHandTile);
 
@@ -475,7 +604,8 @@ function shuffle(array) {
 
 
 
-/*function downloadFilteredFile(url) {
+/* //remove excess words from list
+function downloadFilteredFile(url) {
     let outputFilename = url;
     $.get("words/" + url, function (data) {
         // Split into lines (handles \r\n and \n)
