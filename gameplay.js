@@ -217,6 +217,8 @@ const lookupTable = {
 let langs = [new URL(window.location.href).searchParams.get("lang0") ?? "en",
     new URL(window.location.href).searchParams.get("lang1") ?? "de"];
 
+let player = parseInt(new URL(window.location.href).searchParams.get("player")) ?? 0;
+
 let dictionary = [{lang: "en", words: []}];
 
 let listedWords = [];
@@ -241,9 +243,10 @@ class GameState {
     static SELECT_BOARD_TILE = 1;
     static SELECT_REPLACE_TILES = 2;
     static GAME_OVER = 3;
+    static AWAIT_OTHER_PLAYER = 4;
 }
 
-let CurrentGameState = GameState.SELECT_HAND_TILE;
+let CurrentGameState = player === 0 ? GameState.SELECT_HAND_TILE : GameState.AWAIT_OTHER_PLAYER;
 
 let oldState = $("#game-wrapper").html();
 
@@ -273,7 +276,8 @@ function setupLetters() {
     $(".handtile-sample").find(".tile-value").text(langs[0]);
     $(".handtile-sample").find(".tile-alt-value").text(langs[1]);
 }
-setupLetters();
+if(CurrentGameState === GameState.SELECT_HAND_TILE)
+    setupLetters();
 
 function draw() {
     $(".handtile").each(function() {
@@ -296,8 +300,8 @@ function draw() {
     $("#redraw-button").removeAttr("disabled");
     oldState = $("#game-wrapper").html();
 }
-
-draw();
+if(CurrentGameState === GameState.SELECT_HAND_TILE)
+    draw();
 
 let selectedHandTile = "";
 
@@ -571,7 +575,7 @@ function findWords() {
 
 function checkWord(word) {
     for(let i = 0; i < dictionary.length; i++) {
-        const regexp = new RegExp(`^${word.word}$`, "i");
+        const regexp = new RegExp(`^${word.word.replaceAll("*", ".")}$`, "i");
         for(let j = 0; j < dictionary[i].words.length; j++) {
             if(regexp.test(dictionary[i].words[j])) {word.langs.push(langs[i]);}
         }
@@ -598,6 +602,7 @@ function populateScores() {
     console.log(listedWords.length);
     for(let k = 0; k < listedWords.length; k++) {
         let score = wordScore(listedWords[k]);
+        console.log("score: " + score);
         scoresHTML += `${listedWords[k].word} (${listedWords[k].langs.join("/")}): ${score}<br>`;
         totalScore += score;
     }
@@ -621,6 +626,7 @@ function wordScore(wordObj) {
             if(currentTile.hasClass("triple-letter")) tileMultiplier = 3;
             if(currentTile.hasClass("double-word")) multiplier = 2;
             if(currentTile.hasClass("triple-word")) multiplier = 3;
+            console.log(multiplier);
             lang0Score += tileLang0Score * tileMultiplier;
             lang1Score += tileLang1Score * tileMultiplier;
         }
@@ -641,6 +647,7 @@ function wordScore(wordObj) {
             lang1Score += tileLang1Score * tileMultiplier;
         }
     }
+    console.log(`${multiplier} * ${lang0Score}/${lang1Score}`);
     if(wordObj.langs.length > 1) return Math.min(lang0Score, lang1Score) * multiplier;
     return wordObj.langs[0] === langs[0] ? lang0Score : lang1Score;
 }
@@ -665,12 +672,14 @@ function resetTurn() {
 }
 
 function uploadState() {
+    //return;
     sendJsonToPhp({
         oldState,
         oldLetters,
         oldFields,
         oldListedWords
     });
+    setPlayerTurn();
 }
 
 /********************
@@ -715,7 +724,8 @@ function shuffle(array) {
  * NETWORKING LIBRARY *
  **********************/
 
-async function sendJsonToPhp(data, url = 'writeFile.php') {
+async function sendJsonToPhp(data) {
+    let url = 'writeFile.php';
     try {
         // Convert object to JSON string
         const jsonData = JSON.stringify(data);
@@ -742,6 +752,44 @@ async function sendJsonToPhp(data, url = 'writeFile.php') {
     }
 }
 
+async function setPlayerTurn() {
+    await fetch(`setPlayerTurn.php?player=${(player + 1) % 2}`);
+}
+
+async function pollPlayerTurn(){
+    let url = 'getPlayerTurn.php';
+
+    const response = await fetch(url);
+    const data = await response.json();
+    const turnValue = typeof data === 'number' ? data : data.turn;
+
+    if (turnValue === player) {
+        await getGameState();
+        //CurrentGameState = GameState.SELECT_HAND_TILE;
+        return;
+    }
+    setTimeout(pollPlayerTurn, 1000);
+}
+if(CurrentGameState === GameState.AWAIT_OTHER_PLAYER) {
+    pollPlayerTurn();
+    alert("Waiting for your opponents turn... Press OK to wait.");
+}
+
+async function getGameState() {
+    let url = 'readFile.php';
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    oldState = data.oldState;
+    oldLetters = data.oldLetters;
+    oldFields = data.oldFields;
+    oldListedWords = data.oldFields;
+    resetTurn();
+
+    alert("Your Turn!");
+
+}
 
 
 /* //remove excess words from list

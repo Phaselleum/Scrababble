@@ -26,10 +26,13 @@
         <option value="ga">GA</option>
     </select>
     <br>
-    <button onclick="play()">PLAY</button>
+    <button onclick="play(0)">PLAYER 1</button>
+    <button onclick="play(1)">PLAYER 2</button>
 <script>
-    function play() {
-        window.location.href = "play.html?lang0=" + document.getElementById("lang0").value + "&lang1=" + document.getElementById("lang1").value;
+    function play(player) {
+        window.location.href = "play.html?lang0=" + document.getElementById("lang0").value
+            + "&lang1=" + document.getElementById("lang1").value
+            + "&player=" + player;
     }
 </script>
 </body>
