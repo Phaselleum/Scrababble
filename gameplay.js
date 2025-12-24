@@ -427,6 +427,7 @@ function endTurn() {
         if($(".active-handtile").length === 0) {
             endGame();
         }
+        uploadState();
         return;
     }
 
@@ -440,6 +441,7 @@ function endTurn() {
         $("#redraw-button").css("background-color", "");
 
         CurrentGameState = GameState.SELECT_HAND_TILE;
+        uploadState();
         return;
     }
 }
@@ -662,6 +664,15 @@ function resetTurn() {
     CurrentGameState = GameState.SELECT_HAND_TILE;
 }
 
+function uploadState() {
+    sendJsonToPhp({
+        oldState,
+        oldLetters,
+        oldFields,
+        oldListedWords
+    });
+}
+
 /********************
  * FUNCTION LIBRARY *
  ********************/
@@ -697,6 +708,37 @@ function shuffle(array) {
         currentIndex--;
 
         [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+    }
+}
+
+/**********************
+ * NETWORKING LIBRARY *
+ **********************/
+
+async function sendJsonToPhp(data, url = 'writeFile.php') {
+    try {
+        // Convert object to JSON string
+        const jsonData = JSON.stringify(data);
+
+        // Send POST request
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: jsonData
+        });
+
+        // Parse JSON response
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || `HTTP ${response.status}`);
+        }
+
+        return result;
+    } catch (error) {
+        throw new Error(`Failed to send JSON: ${error.message}`);
     }
 }
 
