@@ -484,7 +484,7 @@ function unsetHandtile(tile) {
  * Find all words in the game and check each for validity. Reset the turn on fail.
  */
 function findWords() {
-    let foundWords = listedWords;
+    let foundWords = [];
 
     //find words across
     for(let i = 0; i < 15; i++) {
@@ -552,6 +552,16 @@ function findWords() {
             alert("Word not in dictionary: " + foundWords[i].word);
             return false;
         }
+    }
+    for(let i = 0; i < foundWords.length; i++) {
+        let matchFound = false;
+        for(let j = 0; j < listedWords.length; j++) {
+            if(listedWords[j].word === foundWords[i].word
+                && listedWords[j].x === foundWords[i].x
+                && listedWords[j].y === foundWords[i].y) {matchFound = true; break}
+        }
+        if(!matchFound) listedWords.push(foundWords[i]);
+        console.log(listedWords.length);
     }
     $("#found-words").text(foundWords.map(wordObj => wordObj.word).join());
     return true;
