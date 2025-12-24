@@ -156,7 +156,7 @@ const lookupTable = {
 }};
 
 let langs = [new URL(window.location.href).searchParams.get("lang0") ?? "en",
-    new URL(window.location.href).searchParams.get("lang0") ?? "de"];
+    new URL(window.location.href).searchParams.get("lang1") ?? "de"];
 
 let dictionary = [{lang: "en", words: []}];
 
@@ -229,8 +229,8 @@ function draw() {
                 .on("mouseenter", activeHandTileOnMouseEnter)
                 .on("mouseleave", activeHandTileOnMouseLeave);
             //console.log(lookupTable[tile].val);
-            $(this).find(".tile-value").text(lookupTable[langs[0]][tile] ? lookupTable.en[tile].val : "-");
-            $(this).find(".tile-alt-value").text(lookupTable[langs[1]][tile] ? lookupTable.de[tile].val : "-");
+            $(this).find(".tile-value").text(lookupTable[langs[0]][tile] ? lookupTable[langs[0]][tile].val : "-");
+            $(this).find(".tile-alt-value").text(lookupTable[langs[1]][tile] ? lookupTable[langs[1]][tile].val : "-");
         }
     });
     tiles_placed_flag = false;
@@ -323,7 +323,7 @@ function validTileOnClick() {
         .html(selectedHandTileObj.html());
 
     let literal = selectedHandTileObj.find(".letter").text();
-    fields[tileX][tileY] = lookupTable[langs[0]][literal] ? lookupTable[langs[0]][literal].str : lookupTable[langs[1]][literal].str;
+    fields[tileX][tileY] = literal; //TODO replace literals at dictionary stage (temporarily). Offer both options upon scoring
     //console.log("vtoc: " + fields[tileX][tileY]);
     unsetHandtile("#" + selectedHandTile);
 

@@ -7,6 +7,26 @@
 </head>
 <body>
     <h1>SCRABABBLE</h1>
-    <a href="play.html"><button>PLAY</button></a>
+    <select id="lang0">
+        <option value="en" selected="selected">EN</option>
+        <option value="de">DE</option>
+        <option value="es">ES</option>
+        <option value="fr">FR</option>
+        <option value="pl">PL</option>
+    </select>
+    <select id="lang1">
+        <option value="en">EN</option>
+        <option value="de" selected="selected">DE</option>
+        <option value="es">ES</option>
+        <option value="fr">FR</option>
+        <option value="pl">PL</option>
+    </select>
+    <br>
+    <button onclick="play()">PLAY</button>
+<script>
+    function play() {
+        window.location.href = "play.html?lang0=" + document.getElementById("lang0").value + "&lang1=" + document.getElementById("lang1").value;
+    }
+</script>
 </body>
 </html>
