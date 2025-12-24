@@ -31,7 +31,8 @@ const lookupTable = {
     "Y": {str: "Y", val: 4, freq: 1},
     "Z": {str: "Z", val: 10, freq: 1},
     "*": {str: ".", val: 0, freq: 1}
-}, "de": {
+},
+    "de": {
     "A": {str: "A", val: 1, freq: 2},
     "B": {str: "B", val: 3, freq: 1},
     "C": {str: "C", val: 4, freq: 1},
@@ -62,7 +63,8 @@ const lookupTable = {
     "Ö": {str: "OE", val: 8, freq: 1},
     "Ü": {str: "UE", val: 6, freq: 1},
     "*": {str: ".", val: 0, freq: 1}
-}, "es": {
+},
+    "es": {
     "A": {str: "A", val: 1, freq: 6},
     "B": {str: "B", val: 3, freq: 1},
     "C": {str: "C", val: 3, freq: 2},
@@ -92,7 +94,8 @@ const lookupTable = {
     "RR": {str: "RR", val: 8, freq: 1},
     "Ñ": {str: "NY", val: 8, freq: 1},
     "*": {str: ".", val: 0, freq: 1}
-}, "fr": {
+},
+    "fr": {
     "A": {str: "A", val: 1, freq: 4},
     "B": {str: "B", val: 3, freq: 1},
     "C": {str: "C", val: 3, freq: 1},
@@ -120,7 +123,8 @@ const lookupTable = {
     "Y": {str: "Y", val: 10, freq: 1},
     "Z": {str: "Z", val: 10, freq: 1},
     "*": {str: ".", val: 0, freq: 1}
-}, "pl": {
+},
+    "pl": {
     "A": {str: "A", val: 1, freq: 4},
     "B": {str: "B", val: 3, freq: 1},
     "C": {str: "C", val: 2, freq: 1},
@@ -155,27 +159,28 @@ const lookupTable = {
     "*": {str: ".", val: 0, freq: 1}
 }, "ga": {
     "A": {str: "A", val: 1, freq: 6},
-    "B": {str: "B", val: 3, freq: 1},
-    "C": {str: "C", val: 4, freq: 2},
-    "D": {str: "D", val: 1, freq: 2},
+    "B": {str: "B", val: 10, freq: 1},
+    "C": {str: "C", val: 2, freq: 2},
+    "D": {str: "D", val: 2, freq: 2},
     "E": {str: "E", val: 1, freq: 3},
-    "F": {str: "F", val: 2, freq: 1},
+    "F": {str: "F", val: 4, freq: 1},
     "G": {str: "G", val: 2, freq: 2},
-    "H": {str: "H", val: 4, freq: 5},
+    "H": {str: "H", val: 1, freq: 5},
     "I": {str: "I", val: 1, freq: 5},
     "L": {str: "L", val: 2, freq: 2},
     "M": {str: "M", val: 3, freq: 1},
     "N": {str: "N", val: 1, freq: 3},
-    "O": {str: "O", val: 1, freq: 2},
-    "P": {str: "P", val: 5, freq: 1},
+    "O": {str: "O", val: 2, freq: 2},
+    "P": {str: "P", val: 10, freq: 1},
     "R": {str: "R", val: 1, freq: 3},
-    "T": {str: "T", val: 3, freq: 2},
+    "S": {str: "S", val: 1, freq: 3},
+    "T": {str: "T", val: 2, freq: 2},
     "U": {str: "U", val: 2, freq: 2},
-    "Á": {str: "A", val: 1, freq: 1},
+    "Á": {str: "A", val: 4, freq: 1},
     "Í": {str: "I", val: 4, freq: 1},
-    "É": {str: "E", val: 4, freq: 1},
-    "Ó": {str: "O", val: 5, freq: 1},
-    "Ú": {str: "U", val: 5, freq: 1},
+    "É": {str: "E", val: 8, freq: 1},
+    "Ó": {str: "O", val: 8, freq: 1},
+    "Ú": {str: "U", val: 8, freq: 1},
     "*": {str: ".", val: 0, freq: 1}
 }, "cy": {
     "A": {str: "A", val: 1, freq: 5},
@@ -561,6 +566,12 @@ function checkWord(word) {
     }
     word.langs = [...new Set(word.langs)]
     return word.langs.length > 0;
+}
+
+function transliterate(word) {
+    for(let i = 0; i < word.length; i++) {
+        word[i] = lookupTable[langs[0]][word[i]] ? lookupTable[langs[0]][word[i]].str : lookupTable[langs[1]][word[i]].str;
+    }
 }
 
 function endGame() {
