@@ -253,7 +253,41 @@ const lookupTable = {
     "ㄴ": {str: "N", val: 1, freq: 2},
     "ㅁ": {str: "M", val: 2, freq: 1},
     "ㅇ": {str: "NG", val: 1, freq: 2},
-    "ㄹ": {str: "R", val: 2, freq: 1}
+    "ㄹ": {str: "R", val: 2, freq: 1},
+    "*": {str: ".", val: 0, freq: 1}
+},
+"bg": {
+    "А": {str: "A", val: 1, freq: 4},
+    "О": {str: "O", val: 1, freq: 4},
+    "И": {str: "I", val: 1, freq: 4},
+    "Е": {str: "E", val: 1, freq: 4},
+    "Т": {str: "T", val: 1, freq: 2},
+    "С": {str: "S", val: 1, freq: 2},
+    "Р": {str: "R", val: 1, freq: 2},
+    "П": {str: "P", val: 1, freq: 2},
+    "Н": {str: "N", val: 1, freq: 2},
+    "М": {str: "M", val: 2, freq: 2},
+    "Д": {str: "D", val: 2, freq: 2},
+    "В": {str: "V", val: 2, freq: 2},
+    "Л": {str: "L", val: 2, freq: 1},
+    "К": {str: "K", val: 2, freq: 1},
+    "Б": {str: "B", val: 2, freq: 1},
+    "Г": {str: "G", val: 3, freq: 1},
+    "У": {str: "U", val: 5, freq: 1},
+    "Ъ": {str: "A", val: 3, freq: 1},
+    "Ж": {str: "ZH", val: 4, freq: 1},
+    "З": {str: "Z", val: 4, freq: 1},
+    "Ч": {str: "CH", val: 5, freq: 1},
+    "Я": {str: "YA", val: 5, freq: 1},
+    "Й": {str: "Y", val: 5, freq: 1},
+    "Х": {str: "H", val: 5, freq: 1},
+    "Ц": {str: "TS", val: 8, freq: 1},
+    "Ш": {str: "SH", val: 8, freq: 1},
+    "Ю": {str: "YU", val: 8, freq: 1},
+    "Ф": {str: "F", val: 10, freq: 1},
+    "Щ": {str: "SHT", val: 10, freq: 1},
+    "Ь": {str: "Y", val: 10, freq: 1},
+    "*": {str: ".", val: 0, freq: 1}
 }};
 
 let langs = [new URL(window.location.href).searchParams.get("lang0") ?? "en",
@@ -645,9 +679,11 @@ function checkWord(word) {
 
 function transliterate(word) {
     let transword = "";
-    for(let i = 0; i < word.length; i++) {
-        transword += lookupTable[langs[0]][word[i]] ? lookupTable[langs[0]][word[i]].str : lookupTable[langs[1]][word[i]].str;
-    }
+    try {
+        for (let i = 0; i < word.length; i++) {
+            transword += lookupTable[langs[0]][word[i]] ? lookupTable[langs[0]][word[i]].str : lookupTable[langs[1]][word[i]].str;
+        }
+    }catch(e) {console.log(word);}
     return transword;
 }
 
@@ -664,7 +700,7 @@ function populateScores() {
     for(let k = 0; k < listedWords.length; k++) {
         let score = wordScore(listedWords[k]);
         console.log("score: " + score);
-        scoresHTML += `${listedWords[k].word} [transliterate(listedWords[k].word)] (${listedWords[k].langs.join("/")}): ${score}<br>`;
+        scoresHTML += `${listedWords[k].word} [${transliterate(listedWords[k].word)}] (${listedWords[k].langs.join("/")}): ${score}<br>`;
         totalScore += score;
     }
     scoresHTML += `<br>TOTAL: ${totalScore}`;
