@@ -624,7 +624,8 @@ function findWords() {
                         y: wordStart,
                         end: j,
                         direction: "down",
-                        langs: []
+                        langs: [],
+                        player: player
                     };
                     foundWords.push(wordObj);
                 }
@@ -752,7 +753,9 @@ function wordScore(wordObj) {
 function resetTurn() {
 
     $("#game-wrapper").html(oldState);
-    letters = oldLetters.slice();
+    try {
+        letters = oldLetters.slice();
+    } catch(e) {console.log(oldLetters);}
     for(let i = 0; i < 15; i++) fields[i] = oldFields[i].slice();
     listedWords = oldListedWords.slice();
 
@@ -769,7 +772,7 @@ function resetTurn() {
 }
 
 function uploadState() {
-    return;
+    //return;
     sendJsonToPhp({
         oldState,
         oldLetters,
@@ -849,8 +852,15 @@ async function sendJsonToPhp(data) {
     }
 }
 
-async function setPlayerTurn(p = (player + 1) % 2) {
+async function setPlayerTurn(p = (player + 1) % 2){
+    console.log(`It's ${p}'s turn!`);
+    if(p !== player) CurrentGameState = GameState.AWAIT_OTHER_PLAYER;
     await fetch(`setPlayerTurn.php?player=${p}`);
+    if(p !== player) {
+        //console.log(p + " - " + player);
+        alert("Waiting for your opponents turn... Press OK to wait.");
+        pollPlayerTurn();
+    }
 }
 if(player === 0) {
     setPlayerTurn(0);
@@ -880,6 +890,10 @@ async function getGameState() {
 
     const response = await fetch(url);
     const data = await response.json();
+    console.log(data);
+
+    if(!data.oldState) {setTimeout(getGameState, 1000); console.log("HA"); return;}
+    else console.log(data);
 
     oldState = data.oldState;
     oldLetters = data.oldLetters;
@@ -890,36 +904,3 @@ async function getGameState() {
     alert("Your Turn!");
 
 }
-
-
-/* //remove excess words from list
-function downloadFilteredFile(url) {
-    let outputFilename = url;
-    $.get("words/" + url, function (data) {
-        // Split into lines (handles \r\n and \n)
-        const lines = data.split(/\r?\n/);
-
-        // Filter lines between 2 and 15 characters
-        const filtered = lines.filter(function (line) {
-            const len = line.length;
-            return len >= 2 && len <= 15;
-        });
-
-        // Join back to a single string
-        const result = filtered.join('\n');
-
-        // Create a Blob and trigger download
-        const blob = new Blob([result], { type: 'text/plain;charset=utf-8' });
-        const link = document.createElement('a');
-        const urlObject = URL.createObjectURL(blob);
-
-        link.href = urlObject;
-        link.download = outputFilename;
-        document.body.appendChild(link);
-        link.click();
-
-        // Cleanup
-        document.body.removeChild(link);
-        URL.revokeObjectURL(urlObject);
-    }, 'text');
-}*/
