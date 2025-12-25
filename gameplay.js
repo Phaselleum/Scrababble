@@ -219,7 +219,7 @@ let langs = [new URL(window.location.href).searchParams.get("lang0") ?? "en",
 
 let player = parseInt(new URL(window.location.href).searchParams.get("player")) ?? 0;
 
-let dictionary = [{lang: "en", words: []}];
+let dictionary = [];
 
 let listedWords = [];
 let oldListedWords = [];
@@ -255,6 +255,14 @@ function loadWords() {
         dictionary.push({lang: langs[i], words: []});
 
         $.get("words/dictionary-" + langs[i] + ".txt", function(data) {
+            dictionary[i].words = data.split("\n");
+            console.log("dictionary loaded. First word: " + dictionary[i].words[0]);
+        });
+    }
+    for(let i = 0; i < langs.length; i++) {
+        dictionary.push({lang: langs[i] + "-trans", words: []});
+
+        $.get("words-translit/dictionary-" + langs[i] + ".txt", function(data) {
             dictionary[i].words = data.split("\n");
             console.log("dictionary loaded. First word: " + dictionary[i].words[0]);
         });
@@ -578,6 +586,7 @@ function checkWord(word) {
         const regexp = new RegExp(`^${word.word.replaceAll("*", ".")}$`, "i");
         for(let j = 0; j < dictionary[i].words.length; j++) {
             if(regexp.test(dictionary[i].words[j])) {word.langs.push(langs[i]);}
+            else if(regexp.test(transliterate(dictionary[i].words[j]))) {word.langs.push(langs[i]);}
         }
     }
     word.langs = [...new Set(word.langs)]
@@ -588,6 +597,7 @@ function transliterate(word) {
     for(let i = 0; i < word.length; i++) {
         word[i] = lookupTable[langs[0]][word[i]] ? lookupTable[langs[0]][word[i]].str : lookupTable[langs[1]][word[i]].str;
     }
+    return word;
 }
 
 function endGame() {
@@ -752,8 +762,11 @@ async function sendJsonToPhp(data) {
     }
 }
 
-async function setPlayerTurn() {
-    await fetch(`setPlayerTurn.php?player=${(player + 1) % 2}`);
+async function setPlayerTurn(p = (player + 1) % 2) {
+    await fetch(`setPlayerTurn.php?player=${p}`);
+}
+if(player === 0) {
+    setPlayerTurn(0);
 }
 
 async function pollPlayerTurn(){
