@@ -212,6 +212,48 @@ const lookupTable = {
     "NG": {str: "NG", val: 5, freq: 1},
     "RH": {str: "RH", val: 6, freq: 1},
     "*": {str: ".", val: 0, freq: 1}
+},
+"ko": {
+    "ㅏ": {str: "A", val: 1, freq: 2},
+    "ㅓ": {str: "EO", val: 1, freq: 2},
+    "ㅗ": {str: "O", val: 1, freq: 2},
+    "ㅜ": {str: "U", val: 1, freq: 2},
+    "ㅡ": {str: "EU", val: 2, freq: 1},
+    "ㅣ": {str: "I", val: 1, freq: 2},
+    "ㅐ": {str: "AE", val: 2, freq: 1},
+    "ㅔ": {str: "E", val: 2, freq: 1},
+    "ㅚ": {str: "OE", val: 4, freq: 1},
+    "ㅟ": {str: "WI", val: 4, freq: 1},
+    "ㅑ": {str: "YA", val: 2, freq: 1},
+    "ㅕ": {str: "YEO", val: 4, freq: 1},
+    "ㅛ": {str: "YO", val: 4, freq: 1},
+    "ㅠ": {str: "YU", val: 4, freq: 1},
+    "ㅒ": {str: "YAE", val: 4, freq: 1},
+    "ㅖ": {str: "YE", val: 4, freq: 1},
+    "ㅘ": {str: "WA", val: 4, freq: 1},
+    "ㅙ": {str: "WAE", val: 4, freq: 1},
+    "ㅝ": {str: "WO", val: 4, freq: 1},
+    "ㅞ": {str: "WE", val: 4, freq: 1},
+    "ㅢ": {str: "UI", val: 4, freq: 1},
+    "ㄱ": {str: "G", val: 2, freq: 1},
+    "ㄲ": {str: "KK", val: 8, freq: 1},
+    "ㅋ": {str: "K", val: 2, freq: 1},
+    "ㄷ": {str: "D", val: 2, freq: 1},
+    "ㄸ": {str: "TT", val: 8, freq: 1},
+    "ㅌ": {str: "T", val: 2, freq: 1},
+    "ㅂ": {str: "B", val: 2, freq: 1},
+    "ㅃ": {str: "PP", val: 8, freq: 1},
+    "ㅍ": {str: "P", val: 2, freq: 1},
+    "ㅈ": {str: "J", val: 1, freq: 2},
+    "ㅉ": {str: "JJ", val: 8, freq: 1},
+    "ㅊ": {str: "CH", val: 2, freq: 1},
+    "ㅅ": {str: "S", val: 1, freq: 2},
+    "ㅆ": {str: "SS", val: 8, freq: 1},
+    "ㅎ": {str: "H", val: 1, freq: 2},
+    "ㄴ": {str: "N", val: 1, freq: 2},
+    "ㅁ": {str: "M", val: 2, freq: 1},
+    "ㅇ": {str: "NG", val: 1, freq: 2},
+    "ㄹ": {str: "R", val: 2, freq: 1}
 }};
 
 let langs = [new URL(window.location.href).searchParams.get("lang0") ?? "en",
@@ -220,6 +262,7 @@ let langs = [new URL(window.location.href).searchParams.get("lang0") ?? "en",
 let player = parseInt(new URL(window.location.href).searchParams.get("player")) ?? 0;
 
 let dictionary = [];
+let dictionaryTransliterated = [];
 
 let listedWords = [];
 let oldListedWords = [];
@@ -260,11 +303,11 @@ function loadWords() {
         });
     }
     for(let i = 0; i < langs.length; i++) {
-        dictionary.push({lang: langs[i] + "-trans", words: []});
+        dictionaryTransliterated.push({lang: langs[i], words: []});
 
         $.get("words-translit/dictionary-" + langs[i] + ".txt", function(data) {
-            dictionary[i].words = data.split("\n");
-            console.log("dictionary loaded. First word: " + dictionary[i].words[0]);
+            dictionaryTransliterated[i].words = data.split("\n");
+            console.log("dictionary loaded. First word: " + dictionaryTransliterated[i].words[0]);
         });
     }
 }
@@ -492,6 +535,7 @@ function unsetHandtile(tile) {
         .removeClass("active-handtile")
         .off("click mouseenter mouseleave");
     $(tile).find(".tile-value").text("0");
+    $(tile).find(".tile-alt-value").text("0");
 }
 
 /**
@@ -577,7 +621,7 @@ function findWords() {
         if(!matchFound) listedWords.push(foundWords[i]);
         console.log(listedWords.length);
     }
-    $("#found-words").text(foundWords.map(wordObj => wordObj.word).join());
+    $("#found-words").text(foundWords.map(wordObj => ` ${wordObj.word} [${transliterate(wordObj.word)}]`).join());
     return true;
 }
 
@@ -586,7 +630,13 @@ function checkWord(word) {
         const regexp = new RegExp(`^${word.word.replaceAll("*", ".")}$`, "i");
         for(let j = 0; j < dictionary[i].words.length; j++) {
             if(regexp.test(dictionary[i].words[j])) {word.langs.push(langs[i]);}
-            else if(regexp.test(transliterate(dictionary[i].words[j]))) {word.langs.push(langs[i]);}
+        }
+    }
+    for(let i = 0; i < dictionaryTransliterated.length; i++) {
+        const regexp = new RegExp(`^${transliterate(word.word)}$`, "i");
+        console.log(transliterate(word.word));
+        for(let j = 0; j < dictionary[i].words.length; j++) {
+            if(regexp.test(transliterate(dictionaryTransliterated[i].words[j]))) {word.langs.push(langs[i]);}
         }
     }
     word.langs = [...new Set(word.langs)]
@@ -594,10 +644,11 @@ function checkWord(word) {
 }
 
 function transliterate(word) {
+    let transword = "";
     for(let i = 0; i < word.length; i++) {
-        word[i] = lookupTable[langs[0]][word[i]] ? lookupTable[langs[0]][word[i]].str : lookupTable[langs[1]][word[i]].str;
+        transword += lookupTable[langs[0]][word[i]] ? lookupTable[langs[0]][word[i]].str : lookupTable[langs[1]][word[i]].str;
     }
-    return word;
+    return transword;
 }
 
 function endGame() {
@@ -613,7 +664,7 @@ function populateScores() {
     for(let k = 0; k < listedWords.length; k++) {
         let score = wordScore(listedWords[k]);
         console.log("score: " + score);
-        scoresHTML += `${listedWords[k].word} (${listedWords[k].langs.join("/")}): ${score}<br>`;
+        scoresHTML += `${listedWords[k].word} [transliterate(listedWords[k].word)] (${listedWords[k].langs.join("/")}): ${score}<br>`;
         totalScore += score;
     }
     scoresHTML += `<br>TOTAL: ${totalScore}`;
@@ -682,7 +733,7 @@ function resetTurn() {
 }
 
 function uploadState() {
-    //return;
+    return;
     sendJsonToPhp({
         oldState,
         oldLetters,
