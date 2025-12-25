@@ -326,6 +326,8 @@ class GameState {
 let CurrentGameState = player === 0 ? GameState.SELECT_HAND_TILE : GameState.AWAIT_OTHER_PLAYER;
 
 let oldState = $("#game-wrapper").html();
+let oldBoardState = $("#board").html();
+let oldHandState = $("#hand").html();
 
 function loadWords() {
     for(let i = 0; i < langs.length; i++) {
@@ -384,6 +386,8 @@ function draw() {
     tiles_placed_flag = false;
     $("#redraw-button").removeAttr("disabled");
     oldState = $("#game-wrapper").html();
+    oldBoardState = $("#board").html();
+    oldHandState = $("#hand").html();
 }
 if(CurrentGameState === GameState.SELECT_HAND_TILE)
     draw();
@@ -507,6 +511,8 @@ function endTurn() {
         if(!findWords()) resetTurn();
 
         oldState = $("#game-wrapper").html();
+        oldBoardState = $("#board").html();
+        oldHandState = $("#hand").html();
         oldLetters = letters.slice();
         for(let i = 0; i < 15; i++) oldFields[i] = fields[i].slice();
         oldListedWords = listedWords.slice();
@@ -697,7 +703,7 @@ function endGame() {
 function populateScores() {
     let totalScore = 0;
     let scoresHTML = "";
-    console.log(listedWords.length);
+    console.log(listedWords);
     for(let k = 0; k < listedWords.length; k++) {
         if(listedWords[k].player !== player) continue;
         let score = wordScore(listedWords[k]);
@@ -746,14 +752,16 @@ function wordScore(wordObj) {
             lang1Score += tileLang1Score * tileMultiplier;
         }
     }
-    console.log(`${multiplier} * ${lang0Score}/${lang1Score}`);
+    //console.log(`${multiplier} * ${lang0Score}/${lang1Score}`);
     if(wordObj.langs.length > 1) return Math.min(lang0Score, lang1Score) * multiplier;
     return wordObj.langs[0] === langs[0] ? lang0Score : lang1Score;
 }
 
 function resetTurn() {
 
-    $("#game-wrapper").html(oldState);
+    //$("#game-wrapper").html(oldState);
+    $("#board").html(oldBoardState);
+    $("#hand").html(oldHandState);
     try {
         letters = oldLetters.slice();
     } catch(e) {console.log(oldLetters);}
@@ -775,7 +783,8 @@ function resetTurn() {
 function uploadState() {
     //return;
     sendJsonToPhp({
-        oldState,
+        oldBoardState,
+        oldHandState,
         oldLetters,
         oldFields,
         oldListedWords
@@ -896,11 +905,13 @@ async function getGameState() {
     if(!dataJson["oldState"]) {setTimeout(getGameState, 1000); console.log("HA"); return;}
     else console.log(dataJson);
 
-    oldState = dataJson.oldState;
+    //oldState = dataJson.oldState;
+    oldBoardState = dataJson.oldBoardState;
     oldLetters = dataJson.oldLetters;
     oldFields = dataJson.oldFields;
     oldListedWords = dataJson.oldFields;
     resetTurn();
+    draw();
 
     alert("Your Turn!");
 
