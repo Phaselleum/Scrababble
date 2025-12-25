@@ -699,6 +699,7 @@ function populateScores() {
     let scoresHTML = "";
     console.log(listedWords.length);
     for(let k = 0; k < listedWords.length; k++) {
+        if(listedWords[k].player !== player) continue;
         let score = wordScore(listedWords[k]);
         console.log("score: " + score);
         scoresHTML += `${listedWords[k].word} [${transliterate(listedWords[k].word)}] (${listedWords[k].langs.join("/")}): ${score}<br>`;
@@ -890,15 +891,15 @@ async function getGameState() {
 
     const response = await fetch(url);
     const data = await response.json();
-    console.log(data);
+    const dataJson = JSON.parse(data);
 
-    if(!data.oldState) {setTimeout(getGameState, 1000); console.log("HA"); return;}
-    else console.log(data);
+    if(!dataJson["oldState"]) {setTimeout(getGameState, 1000); console.log("HA"); return;}
+    else console.log(dataJson);
 
-    oldState = data.oldState;
-    oldLetters = data.oldLetters;
-    oldFields = data.oldFields;
-    oldListedWords = data.oldFields;
+    oldState = dataJson.oldState;
+    oldLetters = dataJson.oldLetters;
+    oldFields = dataJson.oldFields;
+    oldListedWords = dataJson.oldFields;
     resetTurn();
 
     alert("Your Turn!");
