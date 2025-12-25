@@ -600,7 +600,8 @@ function findWords() {
                         y: i,
                         end: j,
                         direction: "across",
-                        langs: []
+                        langs: [],
+                        player: player
                     };
                     foundWords.push(wordObj);
                 }
@@ -902,14 +903,14 @@ async function getGameState() {
     const data = await response.json();
     const dataJson = JSON.parse(data);
 
-    if(!dataJson["oldState"]) {setTimeout(getGameState, 1000); console.log("HA"); return;}
+    if(!dataJson["oldBoardState"]) {setTimeout(getGameState, 1000); console.log("HA"); return;}
     else console.log(dataJson);
 
     //oldState = dataJson.oldState;
     oldBoardState = dataJson.oldBoardState;
     oldLetters = dataJson.oldLetters;
     oldFields = dataJson.oldFields;
-    oldListedWords = dataJson.oldFields;
+    oldListedWords = dataJson.oldListedWords;
     resetTurn();
     draw();
 
